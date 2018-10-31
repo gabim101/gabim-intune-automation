@@ -1,0 +1,150 @@
+<#
+.SYNOPSIS 
+This runbook is used to invoke action on device owned by user
+Parameters: userprincipalname and action
+Actions supported : wipe retire delete sync
+#>
+[cmdletbinding()]
+        param
+        (
+        [Parameter(Mandatory=$true)] $action,
+        [Parameter(Mandatory=$true)] $UserPName
+        )
+
+Function Set-DeviceAction ()
+{
+   [cmdletbinding()]
+   param
+    (
+        [Parameter(Mandatory=$true)] $action,
+        [Parameter(Mandatory=$true,HelpMessage="DeviceId (guid) for the Device you want to take action on must be specified:")] $DeviceID
+    ) 
+
+    $graphApiVersion = "Beta"
+
+    try 
+    {
+
+        if($action -eq "wipe"){
+            Write-output "Device " $DeviceID.deviceName " will be wiped"
+            $Resource = "deviceManagement/managedDevices/$DeviceID/wipe" 
+            $uri = "https://graph.microsoft.com/$graphApiVersion/$($resource)"
+            write-output " Wiping the device"
+            # Invoke-RestMethod -Uri $uri -Headers $authToken -Method Post
+        }
+
+        if($action  -eq "retire'"){
+            Write-output "Device " $DeviceID.deviceName " will be retired"
+            $Resource = "deviceManagement/managedDevices/$DeviceID/retire"
+            $uri = "https://graph.microsoft.com/$graphApiVersion/$($resource)"
+            write-output "Retiring the device"
+            # Invoke-RestMethod -Uri $uri -Headers $authToken -Method Post
+
+        }
+
+        if($action -eq "delete"){
+            Write-output "Device " $DeviceID.deviceName " will be deleted"
+            $Resource = "deviceManagement/managedDevices('$DeviceID')"
+            $uri = "https://graph.microsoft.com/$graphApiVersion/$($resource)"
+            write-output "Deleting the device"
+            # Invoke-RestMethod -Uri $uri -Headers $authToken -Method Delete
+
+        }
+
+        if($action -eq "sync"){
+           Write-output "Device " $DeviceID.deviceName " will be synced" 
+           $Resource = "deviceManagement/managedDevices('$DeviceID')/syncDevice"
+           $uri = "https://graph.microsoft.com/$graphApiVersion/$($resource)"
+           write-output "Syncing the device"
+           #Invoke-RestMethod -Uri $uri -Headers $authToken -Method Post
+        }
+    }
+
+    catch 
+    {
+
+    $ex = $_.Exception
+    $errorResponse = $ex.Response.GetResponseStream()
+    $reader = New-Object System.IO.StreamReader($errorResponse)
+    $reader.BaseStream.Position = 0
+    $reader.DiscardBufferedData()
+    $responseBody = $reader.ReadToEnd();
+    Write-Output "Response content:`n$responseBody" -f Red
+    Write-Error "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
+    break
+
+
+    }    
+
+}
+
+######### END Set-DeviceAction
+
+Function Get-Devices () {
+   
+[cmdletbinding()]
+        param
+        (
+        [Parameter(Mandatory=$true)] $UserPName
+        )
+
+    # Defining Variables
+    $graphApiVersion = "beta"
+    $Resource = "deviceManagement/managedDevices"
+    $uri = "https://graph.microsoft.com/$graphApiVersion/$Resource"
+
+    try {
+        $devs = (Invoke-RestMethod -Uri $uri -Headers $authToken -Method Get).Value | Where-Object -FilterScript {$_.UserPrincipalName -eq $UserPName}
+    }
+
+    catch {
+    $ex = $_.Exception
+    $errorResponse = $ex.Response.GetResponseStream()
+    $reader = New-Object System.IO.StreamReader($errorResponse)
+    $reader.BaseStream.Position = 0
+    $reader.DiscardBufferedData()
+    $responseBody = $reader.ReadToEnd();
+    Write-Output "Response content:`n$responseBody" -f Red
+    Write-Error "Request to $Uri failed with HTTP Status $($ex.Response.StatusCode) $($ex.Response.StatusDescription)"
+    break
+    }
+
+
+return $devs
+}
+###### END Get-Devices
+
+
+################### Start Main ####################
+###################################################
+# Import required modules
+try {
+    Import-Module -Name AzureAD -ErrorAction Stop
+    Import-Module -Name PSIntuneAuth -ErrorAction Stop
+  #  Import-Module -Name UnofficialIntuneManagement -ErrorAction Stop
+}
+catch {
+    Write-Warning -Message "Failed to import modules"
+}
+
+$cred = Get-AutomationPSCredential -Name 'IntuneAutomationCredentials' 
+
+try{
+    write-output "Attempting to get token"
+    $authToken= Get-MSIntuneAuthToken -TenantName nttdsicsdemo.net -credential $cred
+}
+
+catch {
+    write-output "Error Getting token"
+}
+
+
+
+$devs = Get-Devices $UserPName
+#Write-output $devs
+
+if($devs){
+    foreach ($dev in $devs){
+        Set-DeviceAction $action $dev
+    }
+}
