@@ -9,6 +9,23 @@ param
 )
 #>
 
+
+function Create-Cred {
+param
+(
+
+    [Parameter(Mandatory=$true)][string]$user,
+    [Parameter(Mandatory=$true)][string]$pfile
+
+)
+
+$myCred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $user, (Get-Content $pfile | ConvertTo-SecureString)
+return $myCred
+
+}
+
+
+
 function Add-AADUser {
 <#
 .SYNOPSIS
@@ -28,8 +45,6 @@ param
     $cred
     
 )
-
-#connect to Msol 
 
 $user = convertfrom-json $json 
 
