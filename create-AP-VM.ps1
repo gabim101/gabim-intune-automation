@@ -143,9 +143,9 @@ Import-Module -Name WindowsAutoPilotIntune -ErrorAction Stop
 
 ###### set variables for Azure credentials
 
-$AZuser="admin@M365x731258.onmicrosoft.com"
+$AZuser="admin@M365xxxxxx.onmicrosoft.com"
 $AZpfile ="c:\VMs\azureadmin.pass"
-$AZten="M365x731258.onmicrosoft.com"
+$AZten="M365xxxxxx.onmicrosoft.com"
 
 ####### Set variables for local admin on clone
 $user = "marco"
