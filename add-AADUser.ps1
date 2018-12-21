@@ -82,12 +82,12 @@ $mailparam = @{
 
 Dear $($user.displayname),
 
-Congratulations and welcome to NTT DATA Services! We are so glad you have joined our team. This email contains your personal credentials* that is essential to beginning your journey with NTT DATA Services. 
+Congratulations and welcome to our company! We are so glad you have joined our team. This email contains your personal credentials* that is essential to beginning your journey with NTT DATA Services. 
 
 Your Password is $($createuser.password) 
 
 Regards,
-Your NTT DATA Services Corporate IT Team.
+Your Company Services Corporate IT Team.
 
 "@
     SmtpServer = $smtpserver
@@ -105,9 +105,9 @@ send-MailMessage @mailparam -UseSsl
 #################################
 
 
-$ten="nttdsicsdemo.net"
-$pf="intune-automation.pass"
-$u="intune.automation@nttdsicsdemo.net"
+$ten="yourten.com"
+$pf="youruser.pass"
+$u="youruser@yourten.com"
 
 
 #Create-SecurePass -pfile $pf
@@ -119,12 +119,12 @@ Connect-MsolService -Credential $c
 $USER =  @{
 accountEnabled=$true;
 displayName="Peter Parker";
-userPrincipalName="Peter.Parker@nttdsicsdemo.net";
+userPrincipalName="Peter.Parker@yourten.com";
 surname="Parker";
 givenName="Peter";
 usageLocation="US";
 license="reseller-account:SPE_E3";
-managerEmail="gabriel.marculescu@nttdata.com";
+managerEmail="gabriel.marculescu@mydomain.com";
 group="Finance";
 requestID="12345"
 }
