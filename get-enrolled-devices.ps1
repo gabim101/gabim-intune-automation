@@ -129,9 +129,9 @@ catch {
     Write-Warning -Message "Failed to import modules"
 }
 
-$tenant="nttdsicsdemo.net"
-$passfile="intune-automation.pass"
-$user = "intune.automation@nttdsicsdemo.net"
+$tenant="yourten.com"
+$passfile="youruser.pass"
+$user = "youruser@yourten.com"
 
 
 $cred = Create-Cred -user $user -pfile $passfile
