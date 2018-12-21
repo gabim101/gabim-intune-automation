@@ -46,9 +46,9 @@ else {
 #################################
 
 
-$ten="nttdsicsdemo.net"
-$pf="intune-automation.pass"
-$u="intune.automation@nttdsicsdemo.net"
+$ten="yourten.com"
+$pf="youruser.pass"
+$u="youruser@yourten.com"
 
 
 #Create-SecurePass -pfile $pf
