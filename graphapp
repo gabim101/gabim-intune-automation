@@ -1,0 +1,26 @@
+connect-Azuread
+
+$tenantID=(Get-AzureADTenantDetail).ObjectId
+$client_secret = "2Uban4QnNvSWqg6mcXdpOL5EyzsTPPixJf6kXgcml3E="
+$applicationName="BlogGraphApp"
+$homePage = "https://gmarculescu.com"
+$appIdURI = "https://gmarculescu.com/?p=584"
+$logoutURI = "http://portal.office.com"
+
+$today=[System.DateTime]::Now
+$keyId = (New-Guid).ToString();
+$today.AddYears($durationInYears) 
+
+$applicationSecret = New-Object Microsoft.Open.AzureAD.Model.PasswordCredential($null, $today.addyears(1), $keyId, $today, $client_secret)
+
+
+
+
+$AADApplication = New-AzureADApplication -DisplayName $applicationName `
+        -HomePage $homePage `
+        -ReplyUrls $homePage `
+        -IdentifierUris $appIdURI `
+        -LogoutUrl $logoutURI `
+        -PasswordCredentials $applicationSecret
+
+$servicePrincipal = New-AzureADServicePrincipal -AppId $AADApplication.AppId
